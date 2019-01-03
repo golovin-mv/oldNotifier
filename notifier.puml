@@ -1,0 +1,44 @@
+@startuml
+
+    interface Message {
+        + String make()
+    }
+
+    class TextMessage {
+        + String pattern
+    }
+
+    interface Notice {
+        + void notify(Map<String, String> params)
+    }
+
+    class TextNotice {
+        - Array<Deliveryman>
+        + Message message
+        + String type
+    }
+
+    class Destination {
+        - Array<String> addressees
+        + addAddressee(String addressee)
+        + Array<String> getAddressee()
+        + Object toDestination()
+    }
+
+    interface Deliveryman {
+        + boll deliver(Message message, Destination destination)
+    }
+
+    class TelegramDelivery {
+        + Destination destination
+    }
+
+    class MailDelivery {
+        Destination destination
+        String from
+    }
+
+    Deliveryman  --|> TelegramDelivery
+    Message --|> TextMessage
+    Notice --|> TextNotice
+@enduml
