@@ -1,26 +1,39 @@
-package main
+package oldNotifier
 
 import (
 	"bytes"
 	"text/template"
+
+	"github.com/jinzhu/gorm"
 )
 
-type Message interface {
-	Make(*map[string]string) (string, error)
+type NotifyMessage interface {
+	Make() (string, error)
+	AddParams(*map[string]string)
 }
 
 type TextMessage struct {
-	Pattern string
+	gorm.Model
+	pattern string
+	params  *map[string]string `gorm:"-"`
 }
 
-func (t *TextMessage) Make(m *map[string]string) (string, error) {
+func NewTextMessage(pattern string) *TextMessage {
+	return &TextMessage{pattern: pattern}
+}
+
+func (t *TextMessage) AddParams(m *map[string]string) {
+	t.params = m
+}
+
+func (t *TextMessage) Make() (string, error) {
 	var tplB bytes.Buffer
-	tmp, err := template.New("").Parse(t.Pattern)
+	tmp, err := template.New("").Parse(t.pattern)
 	if err != nil {
 		return "", err
 	}
 
-	err = tmp.Execute(&tplB, m)
+	err = tmp.Execute(&tplB, t.params)
 
 	if err != nil {
 		return "", err
